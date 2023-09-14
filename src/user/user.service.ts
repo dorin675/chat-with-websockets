@@ -34,6 +34,14 @@ export class UserService {
     });
     return await this.userRepository.save(user);
   }
+  async me(token: string): Promise<UserEntity | null> {
+    console.log(token);
+    const payload = jwt.verify(token, 'JWT_SECRET_KEY') as jwt.JwtPayload;
+    const user = await this.userRepository.findOne({
+      where: { id: payload.id },
+    });
+    return user;
+  }
   async login(user: LogInDto): Promise<string> {
     if (!user) {
       throw new BadRequestException('Your data are not valid');

@@ -21,7 +21,7 @@ import { MessageService } from './message/message.service';
 import { RoomRepository } from './room/models/room.repository';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: { origin: '*' } })
 export class ChatGateway
   implements OnGatewayConnection, OnGatewayConnection, OnModuleInit
 {

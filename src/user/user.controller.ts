@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ExecutionContext,
+  Get,
+  Injectable,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LogInDto } from './dto/login-dto';
@@ -21,7 +30,11 @@ export class UserController {
   ): Promise<Paginated<UserEntity>> {
     return await this.userService.findAll(query);
   }
-
+  @UseGuards(AuthGuard)
+  @Get('/me/:token')
+  async me(@Param('token') token: string): Promise<UserEntity | null> {
+    return await this.userService.me(token);
+  }
   @Post('/login')
   async login(@Body() logInData: LogInDto): Promise<string> {
     return await this.userService.login(logInData);
