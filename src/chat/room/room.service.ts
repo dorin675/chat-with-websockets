@@ -40,7 +40,7 @@ export class RoomService {
     await this.roomRepository.save(newRoom);
     console.log(creator);
     await this.userRepository.save(creator);
-    return '  ';
+    return newRoom;
   }
   async addUserToRoom(roomId: number, userId: number): Promise<RoomEntity> {
     const newUser = await this.userRepository.findOne({

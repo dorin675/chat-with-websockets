@@ -22,6 +22,7 @@ export class JoinedRoomService {
     roomId: number,
   ): Promise<JoinedRoomEntity> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
+
     if (!user) {
       throw new BadRequestException('user not found');
     }
@@ -34,6 +35,8 @@ export class JoinedRoomService {
       room,
       user,
     });
+    console.log('roomroomroomroomroomroomroom');
+    console.log(joinedRoom);
     return await this.joinedRoomRepository.save(joinedRoom);
   }
 

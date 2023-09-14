@@ -12,6 +12,13 @@ export class ConectedUserService {
     private readonly userRepository: UserRepository,
   ) {}
 
+  async getAllConectionsForUser(userId: number) {
+    const conecttions = await this.conectedUserRepository.find({
+      relations: { user: true },
+    });
+    return conecttions.filter((x) => x.user.id === userId);
+  }
+
   async create(socketId: string, userId: number) {
     const user = await this.userRepository.findOne({
       where: { id: userId },

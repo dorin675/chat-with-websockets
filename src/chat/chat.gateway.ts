@@ -6,6 +6,7 @@ import {
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import * as jwt from 'jsonwebtoken';
+
 import { JwtPayload } from 'jsonwebtoken';
 import { UserRepository } from 'src/user/model/user.repository';
 import {
@@ -90,10 +91,16 @@ export class ChatGateway
   @SubscribeMessage('createRoom')
   async createRoom(client: Socket, payload: string): Promise<RoomEntity> {
     console.log(1);
-    return await this.roomService.createRoom({
-      name: payload,
-      idCreator: client.data.user.id,
-    });
+    
+    const conections =  await this.conectedUserService.getAllConectionsForUser(
+        client.data.user.id,
+      )
+      const room = await this.roomService.createRoom({
+        name: payload,
+        idCreator: client.data.user.id,
+      });
+      conections.forEach(x=>this.server.to(x.socketId).emit("rooms",room))
+      return room;
   }
   @SubscribeMessage('addToRoom')
   async addToRoom(
@@ -142,22 +149,16 @@ export class ChatGateway
     if (message.userId !== client.data.user.id) {
       throw new BadRequestException('not the same id');
     }
-    const user = await this.userRepository.findOne({
-      where: { id: client.data.user.id },
-      relations: {
-        joinedRooms: true,
-      },
-    });
-    if (!user) {
-      throw new BadRequestException('user not exist');
-    }
-    if (user.joinedRooms.map((x) => x.user.id).includes(message.userId)) {
+    
+    const joinedRooms=await this.joinedRoomService.findByUser(message.userId)
+    console.log(joinedRooms);
+    if (!joinedRooms.map((x) => x.user.id).includes(message.userId)) {
       throw new BadRequestException('you have not joined the room');
     }
     const joinedUsers = await this.joinedRoomService.findByRoom(message.roomId);
 
     console.log('joinedUsers', joinedUsers);
-    if (!joinedUsers.map((x) => x.user.id).includes(user.id)) {
+    if (!joinedUsers.map((x) => x.user.id).includes(message.userId)) {
       throw new BadRequestException('user is not joined in the room');
     }
 
