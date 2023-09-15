@@ -73,7 +73,7 @@ export class UserService {
           email: foundUser.email,
         },
         'JWT_SECRET_KEY',
-        { expiresIn: '1h' },
+        { expiresIn: '14d' },
       ),
     );
     return jwt.sign(
@@ -83,7 +83,7 @@ export class UserService {
         email: foundUser.email,
       },
       'JWT_SECRET_KEY',
-      { expiresIn: '1h' },
+      { expiresIn: '14d' },
     );
   }
 

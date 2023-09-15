@@ -40,6 +40,10 @@ export class MessageService {
       room,
       createdAt: new Date(),
     });
+    console.log(
+      'messprices[j]-prices[i]prices[j]-prices[i]prices[j]-prices[i]prices[j]-prices[i]prices[j]-prices[i]',
+    );
+    console.log(message);
     return await this.messageRepository.save(message);
   }
 
@@ -54,7 +58,7 @@ export class MessageService {
     console.log('jhecbe');
     const messages = await this.messageRepository.find({
       order: { createdAt: 'ASC' },
-      relations: ['room'],
+      relations: ['room', 'user'],
     });
     return messages.filter((x) => x.room.id === room.id);
   }

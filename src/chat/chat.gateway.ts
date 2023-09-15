@@ -20,7 +20,6 @@ import { ConectedUserService } from './conected-user/conected-user.service';
 import { JoinedRoomService } from './joined-room/joined-room.service';
 import { MessageService } from './message/message.service';
 import { RoomRepository } from './room/models/room.repository';
-import { Paginate, PaginateQuery } from 'nestjs-paginate';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 export class ChatGateway
@@ -46,15 +45,12 @@ export class ChatGateway
     try {
       const token = client.handshake.headers?.authorization;
       if (!token) {
-        console.log('1');
         client.disconnect();
         throw new UnauthorizedException('Insert token');
       }
       const payload = jwt.verify(token, 'JWT_SECRET_KEY') as JwtPayload;
       console.log('payload', payload);
       if (!payload) {
-        console.log('2');
-        console.log(payload);
         client.disconnect();
         throw new BadRequestException('token is not valid');
       }
@@ -62,7 +58,6 @@ export class ChatGateway
         where: { id: payload.id },
       });
       if (!user) {
-        console.log('3');
         client.disconnect();
         throw new BadRequestException('User does not exist in db');
       }
@@ -73,10 +68,8 @@ export class ChatGateway
       );
       const rooms = await this.roomService.getRoomsForUser(user.id);
       await this.conectedUserService.create(client.id, client.data.user.id);
-      console.log('rooms', rooms);
       this.server.to(client.id).emit('rooms', rooms);
     } catch (error) {
-      console.log('10');
       console.log(error);
       client.disconnect();
     }
@@ -90,24 +83,21 @@ export class ChatGateway
 
   @SubscribeMessage('createRoom')
   async createRoom(client: Socket, payload: string): Promise<RoomEntity> {
-    console.log(1);
-    
-    const conections =  await this.conectedUserService.getAllConectionsForUser(
-        client.data.user.id,
-      )
-      const room = await this.roomService.createRoom({
-        name: payload,
-        idCreator: client.data.user.id,
-      });
-      conections.forEach(x=>this.server.to(x.socketId).emit("rooms",room))
-      return room;
+    const conections = await this.conectedUserService.getAllConectionsForUser(
+      client.data.user.id,
+    );
+    const room = await this.roomService.createRoom({
+      name: payload,
+      idCreator: client.data.user.id,
+    });
+    conections.forEach((x) => this.server.to(x.socketId).emit('rooms', room));
+    return room;
   }
   @SubscribeMessage('addToRoom')
   async addToRoom(
     client: Socket,
     payload: { roomId: number; userId: number },
   ): Promise<RoomEntity> {
-    console.log(2);
     return await this.roomService.addUserToRoom(payload.roomId, payload.userId);
   }
 
@@ -149,8 +139,8 @@ export class ChatGateway
     if (message.userId !== client.data.user.id) {
       throw new BadRequestException('not the same id');
     }
-    
-    const joinedRooms=await this.joinedRoomService.findByUser(message.userId)
+
+    const joinedRooms = await this.joinedRoomService.findByUser(message.userId);
     console.log(joinedRooms);
     if (!joinedRooms.map((x) => x.user.id).includes(message.userId)) {
       throw new BadRequestException('you have not joined the room');
