@@ -98,7 +98,15 @@ export class ChatGateway
     client: Socket,
     payload: { roomId: number; userId: number },
   ): Promise<RoomEntity> {
-    return await this.roomService.addUserToRoom(payload.roomId, payload.userId);
+    const conections = await this.conectedUserService.getAllConectionsForUser(
+      payload.userId,
+    );
+    const room = await this.roomService.addUserToRoom(
+      payload.roomId,
+      payload.userId,
+    );
+    conections.forEach((x) => this.server.to(x.socketId).emit('rooms', room));
+    return room;
   }
 
   @SubscribeMessage('joinRoom')
