@@ -10,7 +10,7 @@ import { ChatModule } from './chat/chat.module';
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: 'postgres://postgres:postgres@localhost:5432/postgres',
+      url: 'postgres://sjvhaovb:q5M0LpilkDLoU8RZ9Sl4yXYqSzSFEjC2@dumbo.db.elephantsql.com/sjvhaovb',
       autoLoadEntities: true,
       synchronize: true,
     }),
