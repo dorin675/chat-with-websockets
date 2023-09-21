@@ -144,6 +144,10 @@ export class ChatGateway
     client: Socket,
     message: { text: string; userId: number; roomId: number },
   ) {
+    if (!message.text) {
+      throw new BadRequestException('Message should not be empty');
+    }
+
     if (message.userId !== client.data.user.id) {
       throw new BadRequestException('not the same id');
     }
